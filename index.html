@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>calculate PotFolio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.14/angular.min.js"></script>
+  </head>
+  <body>
+
+    <div class="calc-container">
+  <div class="calculator" ng-app="calcApp" ng-controller="calcCtrl">
+
+    <div class="result">{{text}}</div>
+
+    <div class="controls" ng-click="action($event)">
+      <div class="controls-top">
+        <div class="control action" data-name="c">C</div>
+        <div class="control action" data-name="+">+</div>
+      </div>
+      <div class="controls-right">
+        <div class="control action" data-name="/">/</div>
+         <div class="control action" data-name="*">*</div>
+        <div class="control action" data-name="-">-</div>
+
+        <div class="control action" data-name="=">=</div>
+      </div>
+      <div class="controls-left">
+        <div class="control number" data-name="1">1</div>
+        <div class="control number" data-name="2">2</div>
+        <div class="control number" data-name="3">3</div>
+        <div class="control number" data-name="4">4</div>
+        <div class="control number" data-name="5">5</div>
+        <div class="control number" data-name="6">6</div>
+        <div class="control number" data-name="7">7</div>
+        <div class="control number" data-name="8">8</div>
+        <div class="control number" data-name="9">9</div>
+        <div class="control number" data-name="0">0</div>
+        <div class="control number" data-name=".">.</div>
+      </div>
+    </div>
+
+  </div>
+
+  </body>
+
+  <script type="text/javascript">
+    var app = angular.module('calcApp', []);
+
+
+   app.controller('calcCtrl', function($scope) {
+   $scope.text = '0';
+   var lastVal = null;
+   var reset = false;
+   var lastAction = '';
+
+   function addText(t) {
+     if ($scope.text.length >= 10) {
+       return;
+     }
+
+     if ($scope.text === '0' ||
+        $scope.text === '*'  ||
+        $scope.text === '/'  ||
+        $scope.text === '-'  ||
+        $scope.text === '+'  ||
+        reset === true
+      ) {
+       reset = false;
+       $scope.text = t;
+       return;
+     }
+
+     if (t === '.'
+         && $scope.text.match(/\./) !== null) {
+       return;
+     }
+
+     $scope.text += t;
+   }
+
+   function calculate(a,b,t) {
+     function parse(v) {
+        if (v.match(/\./) !== null) {
+           return Number.parseFloat(v);
+        }
+        return Number.parseInt(v);
+     }
+
+     var val1 = parse('' + a);
+     var val2 = parse('' + b);
+
+     switch(t) {
+       case '*':
+         return val1 * val2;
+       case '/':
+         return val1 / val2;
+       case '-':
+         return val1 - val2;
+       case '+':
+         return val1 + val2;
+     }
+   }
+
+   function remind(t) {
+     if (reset === true) { lastAction = t; return; }
+     if (t === '=') {
+       $scope.text = lastVal = '' + calculate(lastVal, $scope.text, lastAction);
+     } else {
+      $scope.text = lastVal = lastVal !== null ? '' + calculate(lastVal, $scope.text, lastAction) : $scope.text;
+       lastAction = t;
+     }
+
+     reset = true;
+   }
+
+   $scope.action = function(e) {
+     var action = null;
+     if ((action = e.target.getAttribute('data-name')) !== null) {
+       switch(action) {
+         case '1':
+         case '2':
+         case '3':
+         case '4':
+         case '5':
+         case '6':
+         case '7':
+         case '8':
+         case '9':
+         case '0':
+         case '.':
+           addText(action);
+           break;
+         case 'c':
+           $scope.text = '0';
+           lastVal = null;
+           break;
+         case '*':
+         case '/':
+         case '-':
+         case '+':
+         case '=':
+           remind(action);
+           break;
+       }
+
+     }
+
+   }
+});
+  </script>
+</html>
